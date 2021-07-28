@@ -33,8 +33,8 @@ jobs:
         with:
           dotnet-version: '6.0.x'
           include-prerelease: true
-      - name: Create package
-        run: dotnet pack /p:Version=${{ steps.prep.outputs.version }} -c Release src/${{ env.PROJECT}}
+      - name: Create packages
+        run: dotnet pack /p:Version=${{ steps.prep.outputs.version }} -c Release -o $(pwd)/packages
       - name: Push to Nuget
         run: find packages -name *.nupkg -exec dotnet nuget push {} -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_API_KEY }} \;
 
