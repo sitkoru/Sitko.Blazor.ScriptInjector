@@ -29,6 +29,4 @@ jobs:
           dotnet-version: '6.0.x'
           include-prerelease: true
       - name: Create package
-        run: dotnet pack /p:Version=${{ steps.prep.outputs.version }} -c Release src/${{ env.PROJECT}}
-      - name: Create bundle package
-        run: dotnet pack -c Release src/${{ env.BUNDLE_PROJECT}}
+        run: dotnet pack -c Release src/${{ env.PROJECT}}
