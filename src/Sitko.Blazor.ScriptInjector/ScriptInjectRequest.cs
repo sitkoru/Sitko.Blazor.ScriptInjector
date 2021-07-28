@@ -5,26 +5,21 @@
     using System.Linq;
     using System.Reflection;
 
-    public class ScriptInjectRequest
+    public class InjectRequest
     {
         public string Id { get; }
-        public string Path { get; private set; } = "";
-        public string Content { get; private set; } = "";
-        public ScriptInjectRequestType Type { get; }
+        public InjectRequestType Type { get; }
 
-        private ScriptInjectRequest(string id, ScriptInjectRequestType type)
+        internal string Path { get; set; } = "";
+        internal string Content { get; set; } = "";
+
+        protected InjectRequest(string id, InjectRequestType type)
         {
             Id = id;
             Type = type;
         }
 
-        public static ScriptInjectRequest FromUrl(string id, string path) =>
-            new(id, ScriptInjectRequestType.Path) { Path = path };
-
-        public static ScriptInjectRequest Inline(string id, string content) =>
-            new(id, ScriptInjectRequestType.Eval) { Content = content };
-
-        public static ScriptInjectRequest FromResource(string id, Assembly assembly, string fileName)
+        protected static string LoadResource(Assembly assembly, string fileName)
         {
             var resourceName = assembly.GetManifestResourceNames()
                 .FirstOrDefault(n => n.EndsWith(fileName, StringComparison.Ordinal));
@@ -40,8 +35,45 @@
             }
 
             using StreamReader reader = new(stream);
-            string js = reader.ReadToEnd();
-            return new ScriptInjectRequest(id, ScriptInjectRequestType.Eval) { Content = js };
+            return reader.ReadToEnd();
         }
+    }
+
+    public class ScriptInjectRequest : InjectRequest
+    {
+        private ScriptInjectRequest(string id, InjectRequestType type) : base(id, type)
+        {
+        }
+
+        public static ScriptInjectRequest FromUrl(string id, string path) =>
+            new(id, InjectRequestType.JsFile) { Path = path };
+
+        public static ScriptInjectRequest Inline(string id, string content) =>
+            new(id, InjectRequestType.JsInline) { Content = content };
+
+        public static ScriptInjectRequest FromResource(string id, Assembly assembly, string fileName) =>
+            new(id, InjectRequestType.JsInline) { Content = LoadResource(assembly, fileName) };
+
+        public static ScriptInjectRequest InlineEval(string id, string content) =>
+            new(id, InjectRequestType.JsEval) { Content = content };
+
+        public static ScriptInjectRequest FromResourceEval(string id, Assembly assembly, string fileName) =>
+            new(id, InjectRequestType.JsEval) { Content = LoadResource(assembly, fileName) };
+    }
+
+    public class CssInjectRequest : InjectRequest
+    {
+        private CssInjectRequest(string id, InjectRequestType type) : base(id, type)
+        {
+        }
+
+        public static CssInjectRequest FromUrl(string id, string path) =>
+            new(id, InjectRequestType.CssFile) { Path = path };
+
+        public static CssInjectRequest Inline(string id, string content) =>
+            new(id, InjectRequestType.CssInline) { Content = content };
+
+        public static CssInjectRequest FromResource(string id, Assembly assembly, string fileName) =>
+            new(id, InjectRequestType.CssInline) { Content = LoadResource(assembly, fileName) };
     }
 }

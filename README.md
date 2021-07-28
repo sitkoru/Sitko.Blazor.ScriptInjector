@@ -2,7 +2,7 @@
 
 ![Nuget](https://img.shields.io/nuget/dt/Sitko.Blazor.ScriptInjector) ![Nuget](https://img.shields.io/nuget/v/Sitko.Blazor.ScriptInjector)
 
-Library for script injection to Blazor pages
+Library for script and css injection to Blazor pages
 
 # Installation
 
@@ -52,7 +52,35 @@ Then inject
 await _scriptInjector.InjectAsync(ScriptInjectRequest.FromResource("resource", GetType().Assembly, "assembly.js"));
 ```
 
-## Run code after script is loaded
+## Inject inline css
+
+```c#
+await _scriptInjector.InjectAsync(CssInjectRequest.Inline("inlinecss", "body{background: blue;}"));
+```
+
+## Inject css from url
+
+```c#
+await _scriptInjector.InjectAsync(CssInjectRequest.FromUrl("urlcss", "/style.css"));
+```
+
+## Css from resource
+
+Embed script as resource in your `.csproj`
+
+```xml
+<ItemGroup>
+    <EmbeddedResource Include="assembly.css" LogicalName="assembly.css" />
+</ItemGroup>
+```
+
+Then inject
+
+```c#
+await _scriptInjector.InjectAsync(CssInjectRequest.FromResource("resourcecss", GetType().Assembly, "assembly.css"));
+```
+
+## Run code after script or css is loaded
 
 Pass callback to `InjectAsync`. For example - chain script load:
 
@@ -78,14 +106,17 @@ private Task LoadResourceScriptAsync(CancellationToken cancellationToken)
 });
 ```
 
-## Multiple scripts at once
+## Multiple scripts and styles at once
 
 ```c#
 await _scriptInjector.InjectAsync(new[]
 {
-    _scriptInjector.Inline("inline", "console.log('Inline script is executed');")
-    _scriptInjector.FromUrl("url", "/script.js"),
-    _scriptInjector.FromResource("resource", GetType().Assembly, "assembly.js")
+    ScriptInjectRequest.Inline("inline", "console.log('Inline script is executed');")
+    ScriptInjectRequest.FromUrl("url", "/script.js"),
+    ScriptInjectRequest.FromResource("resource", GetType().Assembly, "assembly.js"),
+    CssInjectRequest.Inline("inlinecss", "body{background: blue;}"),
+    CssInjectRequest.FromResource("resourcecss", GetType().Assembly, "assembly.css"),
+    CssInjectRequest.FromUrl("urlcss", "/style.css")
 }, _ =>
 {
     // all scripts are loaded

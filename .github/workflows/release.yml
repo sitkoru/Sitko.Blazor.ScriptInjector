@@ -20,6 +20,16 @@ jobs:
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
           echo ::set-output name=version::${VERSION}
+      - name: Install node.js
+        uses: actions/setup-node@v2.3.0
+        with:
+          node-version: '15'
+      - name: Build js
+        working-directory: src/${{ env.PROJECT }}/Web
+        shell: bash
+        run: |
+          npm ci
+          npm run prod
       - name: Install .NET Core 3.1
         uses: actions/setup-dotnet@v1.8.1
         with:

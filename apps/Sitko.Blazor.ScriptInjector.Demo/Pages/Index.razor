@@ -13,8 +13,10 @@
 }
 <button @onclick="LoadScriptsAsync">Click to load scripts</button><br/>
 <button @onclick="LoadInlineScriptAsync">Click to load scripts in chain</button><br/>
-<button @onclick="LoadMultipleScriptsWithSameIdAsync">Load multpe scripts with same id key (see browser console)</button>
-
+<button @onclick="LoadMultipleScriptsWithSameIdAsync">Load multpe scripts with same id key (see browser console)</button><br/>
+<button @onclick="LoadInlineCssAsync">Click to load inline css</button><br/>
+<button @onclick="LoadResourceCssAsync">Click to load resource css</button><br/>
+<button @onclick="LoadUrlCssAsync">Click to load css from url</button><br/>
 
 @code{
     public bool ScriptsLoaded { get; set; }
@@ -22,6 +24,9 @@
     private ScriptInjectRequest InlineScriptRequest => ScriptInjectRequest.Inline("inline", "document.getElementById('inline').innerText = 'Inline script is executed';");
     private ScriptInjectRequest UrlScriptRequest => ScriptInjectRequest.FromUrl("url", "/script.js");
     private ScriptInjectRequest ResourceScriptRequest => ScriptInjectRequest.FromResource("resource", GetType().Assembly, "assembly.js");
+    private CssInjectRequest InlineCssRequest => CssInjectRequest.Inline("inlinecss", "body{background: blue;}");
+    private CssInjectRequest ResourceCssRequest => CssInjectRequest.FromResource("resourcecss", GetType().Assembly, "assembly.css");
+    private CssInjectRequest UrlCssRequest => CssInjectRequest.FromUrl("urlcss", "/style.css");
 
     private async Task LoadScriptsAsync()
     {
@@ -68,6 +73,21 @@
             ScriptInjectRequest.Inline("console", "console.log('Inline script 2 is executed');"),
             ScriptInjectRequest.Inline("console", "console.log('Inline script 3 is executed');"),
         });
+    }
+
+    private Task LoadInlineCssAsync()
+    {
+        return _scriptInjector.InjectAsync(InlineCssRequest);
+    }
+
+    private Task LoadResourceCssAsync()
+    {
+        return _scriptInjector.InjectAsync(ResourceCssRequest);
+    }
+
+    private Task LoadUrlCssAsync()
+    {
+        return _scriptInjector.InjectAsync(UrlCssRequest);
     }
 
 }

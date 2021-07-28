@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="assembly.js" LogicalName="assembly.js" />
+    <EmbeddedResource Include="assembly.css" LogicalName="assembly.css" />
   </ItemGroup>
   
   <!-- Workaround for this bug (https://github.com/dotnet/sdk/issues/18148) (replace the analyzer name with the one you need to exclude (filename only, no extension) -->
