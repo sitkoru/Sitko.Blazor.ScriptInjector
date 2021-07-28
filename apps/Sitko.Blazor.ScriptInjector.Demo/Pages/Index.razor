@@ -1,0 +1,73 @@
+﻿@page "/"
+@using System.Threading
+@inject IScriptInjector _scriptInjector
+
+<h1>Welcome to Sitko.Blazor.ScriptInjector Demo!</h1>
+
+<div id="inline">Inline script is loading...</div>
+<div id="url">Script from url is loading...</div>
+<div id="resource">Resource script is loading...</div>
+@if (ScriptsLoaded)
+{
+    <p>All scripts are loaded!</p>
+}
+<button @onclick="LoadScriptsAsync">Click to load scripts</button><br/>
+<button @onclick="LoadInlineScriptAsync">Click to load scripts in chain</button><br/>
+<button @onclick="LoadMultipleScriptsWithSameIdAsync">Load multpe scripts with same id key (see browser console)</button>
+
+
+@code{
+    public bool ScriptsLoaded { get; set; }
+
+    private ScriptInjectRequest InlineScriptRequest => ScriptInjectRequest.Inline("inline", "document.getElementById('inline').innerText = 'Inline script is executed';");
+    private ScriptInjectRequest UrlScriptRequest => ScriptInjectRequest.FromUrl("url", "/script.js");
+    private ScriptInjectRequest ResourceScriptRequest => ScriptInjectRequest.FromResource("resource", GetType().Assembly, "assembly.js");
+
+    private async Task LoadScriptsAsync()
+    {
+        await _scriptInjector.InjectAsync(new[]
+        {
+    // inline script
+            InlineScriptRequest,
+    // script from url
+            UrlScriptRequest,
+    // script from resource
+            ResourceScriptRequest
+        }, _ =>
+        {
+    // all scripts are loaded
+            ScriptsLoaded = true;
+            return Task.CompletedTask;
+        });
+    }
+
+    private Task LoadInlineScriptAsync()
+    {
+        return _scriptInjector.InjectAsync(InlineScriptRequest, LoadUrlScriptAsync);
+    }
+
+    private Task LoadUrlScriptAsync(CancellationToken cancellationToken)
+    {
+        return _scriptInjector.InjectAsync(UrlScriptRequest, LoadResourceScriptAsync, cancellationToken);
+    }
+
+    private Task LoadResourceScriptAsync(CancellationToken cancellationToken)
+    {
+        return _scriptInjector.InjectAsync(ResourceScriptRequest, _ =>
+        {
+            ScriptsLoaded = true;
+            return Task.CompletedTask;
+        }, cancellationToken);
+    }
+
+    private Task LoadMultipleScriptsWithSameIdAsync()
+    {
+        return _scriptInjector.InjectAsync(new[]
+        {
+            ScriptInjectRequest.Inline("console", "console.log('Inline script is executed');"),
+            ScriptInjectRequest.Inline("console", "console.log('Inline script 2 is executed');"),
+            ScriptInjectRequest.Inline("console", "console.log('Inline script 3 is executed');"),
+        });
+    }
+
+}

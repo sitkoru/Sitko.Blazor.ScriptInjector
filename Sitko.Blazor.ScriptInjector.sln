@@ -1,0 +1,75 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{598B18D9-017F-42C4-9EC6-2253A9163258}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitko.Blazor.ScriptInjector", "src\Sitko.Blazor.ScriptInjector\Sitko.Blazor.ScriptInjector.csproj", "{AF365869-17EF-4BE4-96EA-A29D01138FA5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFiles", "{CFC67085-5D75-4818-AE0B-7B131A04973C}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{9DF91891-99DB-4B12-83E0-B417A73F25CA}"
+	ProjectSection(SolutionItems) = preProject
+		.github\dependabot.yml = .github\dependabot.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{B17B38BE-68E2-44CB-A568-67C24FCAE679}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\main.yml = .github\workflows\main.yml
+		.github\workflows\release.yml = .github\workflows\release.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apps", "apps", "{61F97493-5239-43C5-B396-10C4D62EB456}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitko.Blazor.ScriptInjector.Demo", "apps\Sitko.Blazor.ScriptInjector.Demo\Sitko.Blazor.ScriptInjector.Demo.csproj", "{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AF365869-17EF-4BE4-96EA-A29D01138FA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF365869-17EF-4BE4-96EA-A29D01138FA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF365869-17EF-4BE4-96EA-A29D01138FA5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AF365869-17EF-4BE4-96EA-A29D01138FA5}.Debug|x64.Build.0 = Debug|Any CPU
+		{AF365869-17EF-4BE4-96EA-A29D01138FA5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AF365869-17EF-4BE4-96EA-A29D01138FA5}.Debug|x86.Build.0 = Debug|Any CPU
+		{AF365869-17EF-4BE4-96EA-A29D01138FA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF365869-17EF-4BE4-96EA-A29D01138FA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF365869-17EF-4BE4-96EA-A29D01138FA5}.Release|x64.ActiveCfg = Release|Any CPU
+		{AF365869-17EF-4BE4-96EA-A29D01138FA5}.Release|x64.Build.0 = Release|Any CPU
+		{AF365869-17EF-4BE4-96EA-A29D01138FA5}.Release|x86.ActiveCfg = Release|Any CPU
+		{AF365869-17EF-4BE4-96EA-A29D01138FA5}.Release|x86.Build.0 = Release|Any CPU
+		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}.Debug|x64.Build.0 = Debug|Any CPU
+		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}.Debug|x86.Build.0 = Debug|Any CPU
+		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}.Release|x64.ActiveCfg = Release|Any CPU
+		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}.Release|x64.Build.0 = Release|Any CPU
+		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}.Release|x86.ActiveCfg = Release|Any CPU
+		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AF365869-17EF-4BE4-96EA-A29D01138FA5} = {598B18D9-017F-42C4-9EC6-2253A9163258}
+		{B17B38BE-68E2-44CB-A568-67C24FCAE679} = {9DF91891-99DB-4B12-83E0-B417A73F25CA}
+		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9} = {61F97493-5239-43C5-B396-10C4D62EB456}
+	EndGlobalSection
+EndGlobal

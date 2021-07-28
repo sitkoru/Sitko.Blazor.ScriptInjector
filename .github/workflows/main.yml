@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ghcr.io/sitkoru/actions-container
+    env:
+      PROJECT: Sitko.Blazor.CKEditor
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.3.4
+      - name: Install .NET Core 3.1
+        uses: actions/setup-dotnet@v1.8.1
+        with:
+          dotnet-version: '3.1.x'
+      - name: Install .NET 5.0.x
+        uses: actions/setup-dotnet@v1.8.1
+        with:
+          dotnet-version: '5.0.x'
+      - name: Install .NET 6.0.x
+        uses: actions/setup-dotnet@v1.8.1
+        with:
+          dotnet-version: '6.0.x'
+          include-prerelease: true
+      - name: Create package
+        run: dotnet pack /p:Version=${{ steps.prep.outputs.version }} -c Release src/${{ env.PROJECT}}
+      - name: Create bundle package
+        run: dotnet pack -c Release src/${{ env.BUNDLE_PROJECT}}
