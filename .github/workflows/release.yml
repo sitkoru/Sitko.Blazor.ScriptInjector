@@ -13,7 +13,7 @@ jobs:
       PROJECT: Sitko.Blazor.ScriptInjector
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3.0.1
       - name: Prepare
         id: prep
         shell: bash
