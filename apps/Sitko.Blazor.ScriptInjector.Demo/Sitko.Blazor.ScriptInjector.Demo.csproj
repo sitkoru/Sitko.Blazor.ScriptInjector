@@ -1,23 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Sitko.Blazor.ScriptInjector\Sitko.Blazor.ScriptInjector.csproj" />
+    <ProjectReference Include="..\Sitko.Blazor.ScriptInjector.Demo.Client\Sitko.Blazor.ScriptInjector.Demo.Client.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="assembly.js" LogicalName="assembly.js" />
-    <EmbeddedResource Include="assembly.css" LogicalName="assembly.css" />
+    <_ContentIncludedByDefault Remove="Sitko.Blazor.ScriptInjector.Demo\obj\project.assets.json" />
+    <_ContentIncludedByDefault Remove="Sitko.Blazor.ScriptInjector.Demo\obj\Sitko.Blazor.ScriptInjector.Demo.csproj.nuget.dgspec.json" />
   </ItemGroup>
-  
-  <!-- Workaround for this bug (https://github.com/dotnet/sdk/issues/18148) (replace the analyzer name with the one you need to exclude (filename only, no extension) -->
-  <Target Name="RemoveLoggingAnalyzer" AfterTargets="ResolveLockFileAnalyzers">
-    <ItemGroup>
-      <Analyzer Remove="@(Analyzer)" Condition="%(FileName) == 'System.Text.Json.SourceGeneration'" />
-      <Analyzer Remove="@(Analyzer)" Condition="%(FileName) == 'Microsoft.Extensions.Logging.Generators'" />
-    </ItemGroup>
-  </Target>
+
 </Project>

@@ -1,0 +1,24 @@
+@page "/auto"
+@rendermode InteractiveAuto
+@inject IScriptInjector ScriptInjector
+
+<PageTitle>AutoLoad</PageTitle>
+
+<div id="url">Script from url is loading...</div>
+
+@code {
+    private ScriptInjectRequest UrlScriptRequest => ScriptInjectRequest.FromUrl("url", "/script.js");
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            await ScriptInjector.InjectAsync(new[]
+            {
+                UrlScriptRequest,
+            });
+        }
+    }
+
+}

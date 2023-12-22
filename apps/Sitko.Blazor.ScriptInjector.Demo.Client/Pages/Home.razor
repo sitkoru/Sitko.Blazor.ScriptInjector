@@ -1,6 +1,8 @@
 ﻿@page "/"
+@rendermode InteractiveAuto
+@inject IScriptInjector ScriptInjector
 @using System.Threading
-@inject IScriptInjector _scriptInjector
+<PageTitle>Home</PageTitle>
 
 <h1>Welcome to Sitko.Blazor.ScriptInjector Demo!</h1>
 
@@ -30,17 +32,17 @@
 
     private async Task LoadScriptsAsync()
     {
-        await _scriptInjector.InjectAsync(new[]
+        await ScriptInjector.InjectAsync(new[]
         {
-    // inline script
+            // inline script
             InlineScriptRequest,
-    // script from url
+            // script from url
             UrlScriptRequest,
-    // script from resource
+            // script from resource
             ResourceScriptRequest
         }, _ =>
         {
-    // all scripts are loaded
+            // all scripts are loaded
             ScriptsLoaded = true;
             return Task.CompletedTask;
         });
@@ -48,17 +50,17 @@
 
     private Task LoadInlineScriptAsync()
     {
-        return _scriptInjector.InjectAsync(InlineScriptRequest, LoadUrlScriptAsync);
+        return ScriptInjector.InjectAsync(InlineScriptRequest, LoadUrlScriptAsync);
     }
 
     private Task LoadUrlScriptAsync(CancellationToken cancellationToken)
     {
-        return _scriptInjector.InjectAsync(UrlScriptRequest, LoadResourceScriptAsync, cancellationToken);
+        return ScriptInjector.InjectAsync(UrlScriptRequest, LoadResourceScriptAsync, cancellationToken);
     }
 
     private Task LoadResourceScriptAsync(CancellationToken cancellationToken)
     {
-        return _scriptInjector.InjectAsync(ResourceScriptRequest, _ =>
+        return ScriptInjector.InjectAsync(ResourceScriptRequest, _ =>
         {
             ScriptsLoaded = true;
             return Task.CompletedTask;
@@ -67,7 +69,7 @@
 
     private Task LoadMultipleScriptsWithSameIdAsync()
     {
-        return _scriptInjector.InjectAsync(new[]
+        return ScriptInjector.InjectAsync(new[]
         {
             ScriptInjectRequest.Inline("console", "console.log('Inline script is executed');"),
             ScriptInjectRequest.Inline("console", "console.log('Inline script 2 is executed');"),
@@ -77,17 +79,17 @@
 
     private Task LoadInlineCssAsync()
     {
-        return _scriptInjector.InjectAsync(InlineCssRequest);
+        return ScriptInjector.InjectAsync(InlineCssRequest);
     }
 
     private Task LoadResourceCssAsync()
     {
-        return _scriptInjector.InjectAsync(ResourceCssRequest);
+        return ScriptInjector.InjectAsync(ResourceCssRequest);
     }
 
     private Task LoadUrlCssAsync()
     {
-        return _scriptInjector.InjectAsync(UrlCssRequest);
+        return ScriptInjector.InjectAsync(UrlCssRequest);
     }
 
 }

@@ -30,6 +30,7 @@ if (!window.scriptInjectFunction) {
   }
 
   window.scriptInjectFunction = function (instance, id, scriptPath) {
+    console.debug("Inject script from url");
     const elementId = 'js-' + id;
     checkElement(elementId);
     const script = document.createElement("script");
@@ -39,6 +40,7 @@ if (!window.scriptInjectFunction) {
     injectElement(instance, id, script);
   }
   window.scriptInlineInjectFunction = function (instance, id, scriptContent) {
+    console.debug("Inject inline script");
     const elementId = 'js-' + id;
     checkElement(elementId);
     const script = document.createElement("script");
@@ -48,6 +50,7 @@ if (!window.scriptInjectFunction) {
     injectElement(instance, id, script);
   }
   window.cssInjectFunction = function (instance, id, cssPath) {
+    console.debug("Inject css from url");
     const elementId = 'css-' + id;
     checkElement(elementId);
     const linkElement = document.createElement("link");
@@ -57,6 +60,7 @@ if (!window.scriptInjectFunction) {
     injectElement(instance, id, linkElement);
   }
   window.cssInlineInjectFunction = function (instance, id, css: string) {
+    console.debug("Inject inline css");
     const elementId = 'css-' + id;
     checkElement(elementId);
     const styleElement = document.createElement('style');

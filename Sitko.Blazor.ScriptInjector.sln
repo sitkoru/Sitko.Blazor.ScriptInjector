@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apps", "apps", "{61F97493-5
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitko.Blazor.ScriptInjector.Demo", "apps\Sitko.Blazor.ScriptInjector.Demo\Sitko.Blazor.ScriptInjector.Demo.csproj", "{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sitko.Blazor.ScriptInjector.Demo.Client", "apps\Sitko.Blazor.ScriptInjector.Demo.Client\Sitko.Blazor.ScriptInjector.Demo.Client.csproj", "{7745136F-8326-4765-88FF-420A151B830E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,10 +68,23 @@ Global
 		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}.Release|x64.Build.0 = Release|Any CPU
 		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}.Release|x86.ActiveCfg = Release|Any CPU
 		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9}.Release|x86.Build.0 = Release|Any CPU
+		{7745136F-8326-4765-88FF-420A151B830E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7745136F-8326-4765-88FF-420A151B830E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7745136F-8326-4765-88FF-420A151B830E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7745136F-8326-4765-88FF-420A151B830E}.Debug|x64.Build.0 = Debug|Any CPU
+		{7745136F-8326-4765-88FF-420A151B830E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7745136F-8326-4765-88FF-420A151B830E}.Debug|x86.Build.0 = Debug|Any CPU
+		{7745136F-8326-4765-88FF-420A151B830E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7745136F-8326-4765-88FF-420A151B830E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7745136F-8326-4765-88FF-420A151B830E}.Release|x64.ActiveCfg = Release|Any CPU
+		{7745136F-8326-4765-88FF-420A151B830E}.Release|x64.Build.0 = Release|Any CPU
+		{7745136F-8326-4765-88FF-420A151B830E}.Release|x86.ActiveCfg = Release|Any CPU
+		{7745136F-8326-4765-88FF-420A151B830E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{AF365869-17EF-4BE4-96EA-A29D01138FA5} = {598B18D9-017F-42C4-9EC6-2253A9163258}
 		{B17B38BE-68E2-44CB-A568-67C24FCAE679} = {9DF91891-99DB-4B12-83E0-B417A73F25CA}
 		{A98948BB-D0C5-49B8-8DDD-D8D208819BD9} = {61F97493-5239-43C5-B396-10C4D62EB456}
+		{7745136F-8326-4765-88FF-420A151B830E} = {61F97493-5239-43C5-B396-10C4D62EB456}
 	EndGlobalSection
 EndGlobal

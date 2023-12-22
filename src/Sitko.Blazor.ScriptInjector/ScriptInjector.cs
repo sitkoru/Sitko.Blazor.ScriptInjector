@@ -1,146 +1,147 @@
-﻿namespace Sitko.Blazor.ScriptInjector
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
+
+namespace Sitko.Blazor.ScriptInjector;
+
+[PublicAPI]
+public interface IScriptInjector
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using JetBrains.Annotations;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.JSInterop;
+    Task InjectAsync(InjectRequest request, Func<CancellationToken, Task>? callback = null,
+        CancellationToken cancellationToken = default);
 
-    [PublicAPI]
-    public interface IScriptInjector
+    Task InjectAsync(IEnumerable<InjectRequest> requests, Func<CancellationToken, Task>? callback = null,
+        CancellationToken cancellationToken = default);
+}
+
+public class ScriptInjector : IScriptInjector
+{
+    private readonly DotNetObjectReference<ScriptInjector> instance;
+    private readonly IJSRuntime jsRuntime;
+    private readonly ILogger<ScriptInjector> logger;
+    private readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> requestTasks = new();
+    private bool isInitialized;
+
+    public ScriptInjector(IJSRuntime jsRuntime, ILogger<ScriptInjector> logger)
     {
-        Task InjectAsync(InjectRequest request, Func<CancellationToken, Task>? callback = null,
-            CancellationToken cancellationToken = default);
-
-        Task InjectAsync(IEnumerable<InjectRequest> requests, Func<CancellationToken, Task>? callback = null,
-            CancellationToken cancellationToken = default);
+        this.jsRuntime = jsRuntime;
+        this.logger = logger;
+        instance = DotNetObjectReference.Create(this);
     }
 
-    public class ScriptInjector : IScriptInjector
+    public Task InjectAsync(InjectRequest request, Func<CancellationToken, Task>? callback = null,
+        CancellationToken cancellationToken = default) =>
+        InjectAsync(new[] { request }, callback, cancellationToken);
+
+    public async Task InjectAsync(IEnumerable<InjectRequest> requests,
+        Func<CancellationToken, Task>? callback = null,
+        CancellationToken cancellationToken = default)
     {
-        private readonly DotNetObjectReference<ScriptInjector> instance;
-        private readonly IJSRuntime jsRuntime;
-        private readonly ILogger<ScriptInjector> logger;
-        private readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> requestTasks = new();
-        private bool isInitialized;
-
-        public ScriptInjector(IJSRuntime jsRuntime, ILogger<ScriptInjector> logger)
+        if (!isInitialized)
         {
-            this.jsRuntime = jsRuntime;
-            this.logger = logger;
-            instance = DotNetObjectReference.Create(this);
+            logger.LogDebug("Init injector");
+            await DoInjectAsync(
+                new[] { ScriptInjectRequest.FromResourceEval("inject", GetType().Assembly, "inject.js") }, null,
+                cancellationToken);
+            isInitialized = true;
         }
 
-        public Task InjectAsync(InjectRequest request, Func<CancellationToken, Task>? callback = null,
-            CancellationToken cancellationToken = default) =>
-            InjectAsync(new[] { request }, callback, cancellationToken);
+        await DoInjectAsync(requests, callback, cancellationToken);
+    }
 
-        public async Task InjectAsync(IEnumerable<InjectRequest> requests,
-            Func<CancellationToken, Task>? callback = null,
-            CancellationToken cancellationToken = default)
+    private async Task DoInjectAsync(IEnumerable<InjectRequest> requests, Func<CancellationToken, Task>? callback,
+        CancellationToken cancellationToken)
+    {
+        var tasks = new List<Task<bool>>();
+        foreach (var scriptInjectRequest in requests)
         {
-            if (!isInitialized)
+            logger.LogDebug("Load request {Id}", scriptInjectRequest.Id);
+            var newTcs = new TaskCompletionSource<bool>();
+            var tcs = requestTasks.GetOrAdd(scriptInjectRequest.Id, (_, tcs) => tcs, newTcs);
+            if (tcs == newTcs)
             {
-                await DoInjectAsync(
-                    new[] { ScriptInjectRequest.FromResourceEval("inject", GetType().Assembly, "inject.js") }, null,
-                    cancellationToken);
-                isInitialized = true;
+                await InjectAsync(scriptInjectRequest, cancellationToken);
             }
 
-            await DoInjectAsync(requests, callback, cancellationToken);
+            tasks.Add(tcs.Task);
         }
 
-        private async Task DoInjectAsync(IEnumerable<InjectRequest> requests, Func<CancellationToken, Task>? callback,
-            CancellationToken cancellationToken)
+        await Task.WhenAll(tasks);
+        if (tasks.All(t => t.Result))
         {
-            var tasks = new List<Task<bool>>();
-            foreach (var scriptInjectRequest in requests)
+            if (callback is not null)
             {
-                var newTcs = new TaskCompletionSource<bool>();
-                var tcs = requestTasks.GetOrAdd(scriptInjectRequest.Id, (_, tcs) => tcs, newTcs);
-                if (tcs == newTcs)
-                {
-                    await InjectAsync(scriptInjectRequest, cancellationToken);
-                }
-
-                tasks.Add(tcs.Task);
-            }
-
-            await Task.WhenAll(tasks);
-            if (tasks.All(t => t.Result))
-            {
-                if (callback is not null)
-                {
-                    await callback(cancellationToken);
-                }
-            }
-            else
-            {
-                logger.LogError("Not all scripts are loaded successfully");
+                await callback(cancellationToken);
             }
         }
-
-        private async Task InjectAsync(InjectRequest request, CancellationToken cancellationToken)
+        else
         {
-            switch (request.Type)
-            {
-                case InjectRequestType.JsFile:
-                    await jsRuntime.InvokeVoidAsync("scriptInjectFunction", cancellationToken, instance,
-                        request.Id, request.Path);
-                    break;
-                case InjectRequestType.JsInline:
-                    await jsRuntime.InvokeVoidAsync("scriptInlineInjectFunction", cancellationToken, instance,
-                        request.Id, request.Content);
-                    await RequestLoadedAsync(request.Id);
-                    break;
-                case InjectRequestType.CssFile:
-                    await jsRuntime.InvokeVoidAsync("cssInjectFunction", cancellationToken, instance,
-                        request.Id, request.Path);
-                    break;
-                case InjectRequestType.CssInline:
-                    await jsRuntime.InvokeVoidAsync("cssInlineInjectFunction", cancellationToken, instance,
-                        request.Id, request.Content);
-                    break;
-                case InjectRequestType.JsEval:
-                    await jsRuntime.InvokeVoidAsync("eval", cancellationToken, request.Content);
-                    await RequestLoadedAsync(request.Id);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException($"Type {request.Type} unknown");
-            }
+            logger.LogError("Not all scripts are loaded successfully");
         }
+    }
 
-        [JSInvokable]
-        public Task RequestLoadedAsync(string name)
+    private async Task InjectAsync(InjectRequest request, CancellationToken cancellationToken)
+    {
+        switch (request.Type)
         {
-            RequestFinished(name, true);
-            return Task.CompletedTask;
+            case InjectRequestType.JsFile:
+                await jsRuntime.InvokeVoidAsync("scriptInjectFunction", cancellationToken, instance,
+                    request.Id, request.Path);
+                break;
+            case InjectRequestType.JsInline:
+                await jsRuntime.InvokeVoidAsync("scriptInlineInjectFunction", cancellationToken, instance,
+                    request.Id, request.Content);
+                await RequestLoadedAsync(request.Id);
+                break;
+            case InjectRequestType.CssFile:
+                await jsRuntime.InvokeVoidAsync("cssInjectFunction", cancellationToken, instance,
+                    request.Id, request.Path);
+                break;
+            case InjectRequestType.CssInline:
+                await jsRuntime.InvokeVoidAsync("cssInlineInjectFunction", cancellationToken, instance,
+                    request.Id, request.Content);
+                break;
+            case InjectRequestType.JsEval:
+                await jsRuntime.InvokeVoidAsync("eval", cancellationToken, request.Content);
+                await RequestLoadedAsync(request.Id);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException($"Type {request.Type} unknown");
         }
+    }
 
-        [JSInvokable]
-        public Task RequestFailedAsync(string name)
+    [JSInvokable]
+    public Task RequestLoadedAsync(string name)
+    {
+        RequestFinished(name, true);
+        return Task.CompletedTask;
+    }
+
+    [JSInvokable]
+    public Task RequestFailedAsync(string name)
+    {
+        RequestFinished(name, false);
+        return Task.CompletedTask;
+    }
+
+    private void RequestFinished(string name, bool isSuccess)
+    {
+        if (requestTasks.TryGetValue(name, out var tcs))
         {
-            RequestFinished(name, false);
-            return Task.CompletedTask;
+            if (isSuccess) { logger.LogDebug("Request {Name} is loaded", name); }
+            else { logger.LogError("Request {Name} is failed", name); }
+
+            tcs.SetResult(isSuccess);
         }
-
-        private void RequestFinished(string name, bool isSuccess)
+        else
         {
-            if (requestTasks.TryGetValue(name, out var tcs))
-            {
-                if (isSuccess) { logger.LogDebug("Request {Name} is loaded", name); }
-                else { logger.LogError("Request {Name} is failed", name); }
-
-                tcs.SetResult(isSuccess);
-            }
-            else
-            {
-                logger.LogError("Task for request {Name} not found", name);
-            }
+            logger.LogError("Task for request {Name} not found", name);
         }
     }
 }
