@@ -14,29 +14,16 @@ jobs:
       PROJECT: Sitko.Blazor.ScriptInjector
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3
       - name: Install node.js
-        uses: actions/setup-node@v2.4.0
+        uses: actions/setup-node@v4
         with:
-          node-version: '15'
+          node-version: '18'
       - name: Build js
         working-directory: src/${{ env.PROJECT }}/Web
         shell: bash
         run: |
           npm ci
           npm run prod
-      - name: Install .NET Core 3.1
-        uses: actions/setup-dotnet@v1.8.1
-        with:
-          dotnet-version: '3.1.x'
-      - name: Install .NET 5.0.x
-        uses: actions/setup-dotnet@v1.8.1
-        with:
-          dotnet-version: '5.0.x'
-      - name: Install .NET 6.0.x
-        uses: actions/setup-dotnet@v1.8.1
-        with:
-          dotnet-version: '6.0.x'
-          include-prerelease: true
       - name: Create package
         run: dotnet pack -c Release src/${{ env.PROJECT}}
