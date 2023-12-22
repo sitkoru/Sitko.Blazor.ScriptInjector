@@ -11,80 +11,61 @@ interface Window {
 if (!window.scriptInjectFunction) {
   function injectElement(instance: any, id: string, element: HTMLElement): void {
     element.onload = () => {
-      onLoad(id, instance);
+      console.debug(id, 'loaded');
+      instance.invokeMethodAsync("RequestLoadedAsync", id);
     }
     // if it fails, return reject
     element.onerror = () => {
-      onError(id, instance);
+      console.debug(id, 'failed');
+      instance.invokeMethodAsync("RequestFailedAsync", id);
     }
     // scripts will load at end of body
     document["body"].appendChild(element);
   }
 
-  function isAlreadyLoaded(id: string) {
-    return !!document.getElementById(id);
-
-  }
-
-  function onLoad(id: string, instance: any): void {
-    console.debug(id, 'loaded');
-    instance.invokeMethodAsync("RequestLoadedAsync", id);
-  }
-
-  function onError(id: string, instance: any): void {
-    console.debug(id, 'failed');
-    instance.invokeMethodAsync("RequestFailedAsync", id);
+  function checkElement(id: string) {
+    if (document.getElementById(id)) {
+      throw new Error(`Resource ${id} already loaded`);
+    }
   }
 
   window.scriptInjectFunction = function (instance, id, scriptPath) {
     console.debug("Inject script from url");
     const elementId = 'js-' + id;
-    if (!isAlreadyLoaded(elementId)) {
-      const script = document.createElement("script");
-      script.src = scriptPath;
-      script.type = "text/javascript";
-      script.id = elementId;
-      injectElement(instance, id, script);
-    } else {
-      onLoad(id, instance);
-    }
+    checkElement(elementId);
+    const script = document.createElement("script");
+    script.src = scriptPath;
+    script.type = "text/javascript";
+    script.id = elementId;
+    injectElement(instance, id, script);
   }
   window.scriptInlineInjectFunction = function (instance, id, scriptContent) {
     console.debug("Inject inline script");
     const elementId = 'js-' + id;
-    if (!isAlreadyLoaded(elementId)) {
-      const script = document.createElement("script");
-      script.type = "text/javascript";
-      script.id = elementId;
-      script.text = scriptContent;
-      injectElement(instance, id, script);
-    } else {
-      onLoad(id, instance);
-    }
+    checkElement(elementId);
+    const script = document.createElement("script");
+    script.type = "text/javascript";
+    script.id = elementId;
+    script.text = scriptContent;
+    injectElement(instance, id, script);
   }
   window.cssInjectFunction = function (instance, id, cssPath) {
     console.debug("Inject css from url");
     const elementId = 'css-' + id;
-    if (!isAlreadyLoaded(elementId)) {
-      const linkElement = document.createElement("link");
-      linkElement.href = cssPath;
-      linkElement.rel = "stylesheet";
-      linkElement.id = elementId;
-      injectElement(instance, id, linkElement);
-    } else {
-      onLoad(id, instance);
-    }
+    checkElement(elementId);
+    const linkElement = document.createElement("link");
+    linkElement.href = cssPath;
+    linkElement.rel = "stylesheet";
+    linkElement.id = elementId;
+    injectElement(instance, id, linkElement);
   }
   window.cssInlineInjectFunction = function (instance, id, css: string) {
     console.debug("Inject inline css");
     const elementId = 'css-' + id;
-    if (!isAlreadyLoaded(elementId)) {
-      const styleElement = document.createElement('style');
-      styleElement.id = elementId;
-      styleElement.textContent = css;
-      injectElement(instance, id, styleElement);
-    } else {
-      onLoad(id, instance);
-    }
+    checkElement(elementId);
+    const styleElement = document.createElement('style');
+    styleElement.id = elementId;
+    styleElement.textContent = css;
+    injectElement(instance, id, styleElement);
   }
 }

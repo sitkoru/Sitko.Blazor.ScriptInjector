@@ -1,0 +1,29 @@
+﻿@inject IScriptInjector ScriptInjector
+@inject IJSRuntime JsRuntime
+<h3>ScriptComponent</h3>
+
+<div id="@Id"></div>
+
+@code {
+    private Guid Id { get; } = Guid.NewGuid();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            var scripts = new List<ScriptInjectRequest>
+            {
+                ScriptInjectRequest.FromUrl("ScriptComponent", "ScriptComponent.js"),
+            };
+
+            await ScriptInjector.InjectAsync(scripts, InitializeComponentAsync);
+        }
+    }
+
+    private async Task InitializeComponentAsync(CancellationToken cancellationToken)
+    {
+        await JsRuntime.InvokeVoidAsync("InitScriptComponent", cancellationToken, Id);
+    }
+
+}

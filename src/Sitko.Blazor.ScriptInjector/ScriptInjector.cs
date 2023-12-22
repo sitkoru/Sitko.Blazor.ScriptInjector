@@ -10,6 +10,8 @@ using Microsoft.JSInterop;
 
 namespace Sitko.Blazor.ScriptInjector;
 
+using Microsoft.AspNetCore.Components;
+
 [PublicAPI]
 public interface IScriptInjector
 {
@@ -28,11 +30,15 @@ public class ScriptInjector : IScriptInjector
     private readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> requestTasks = new();
     private bool isInitialized;
 
-    public ScriptInjector(IJSRuntime jsRuntime, ILogger<ScriptInjector> logger)
+    public ScriptInjector(IJSRuntime jsRuntime, NavigationManager navigationManager, ILogger<ScriptInjector> logger)
     {
         this.jsRuntime = jsRuntime;
         this.logger = logger;
         instance = DotNetObjectReference.Create(this);
+        navigationManager.LocationChanged += (_, _) =>
+        {
+            requestTasks.Clear();
+        };
     }
 
     public Task InjectAsync(InjectRequest request, Func<CancellationToken, Task>? callback = null,
@@ -137,7 +143,7 @@ public class ScriptInjector : IScriptInjector
             if (isSuccess) { logger.LogDebug("Request {Name} is loaded", name); }
             else { logger.LogError("Request {Name} is failed", name); }
 
-            tcs.SetResult(isSuccess);
+            tcs.TrySetResult(isSuccess);
         }
         else
         {

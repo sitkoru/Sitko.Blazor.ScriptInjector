@@ -9,7 +9,7 @@
     {
         public static IServiceCollection AddScriptInjector(this IServiceCollection serviceCollection)
         {
-            serviceCollection.TryAddTransient<IScriptInjector, ScriptInjector>();
+            serviceCollection.TryAddScoped<IScriptInjector, ScriptInjector>();
             return serviceCollection;
         }
     }
