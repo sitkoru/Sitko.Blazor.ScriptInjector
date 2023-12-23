@@ -1,3 +1,5 @@
+using System.Globalization;
+using Serilog;
 using Sitko.Blazor.ScriptInjector;
 using Sitko.Blazor.ScriptInjector.Demo.Client.Pages;
 using Sitko.Blazor.ScriptInjector.Demo.Components;
@@ -9,6 +11,11 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 builder.Services.AddScriptInjector();
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.BrowserConsole(formatProvider: CultureInfo.InvariantCulture)
+    .CreateLogger();
+builder.Logging.ClearProviders().AddSerilog();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

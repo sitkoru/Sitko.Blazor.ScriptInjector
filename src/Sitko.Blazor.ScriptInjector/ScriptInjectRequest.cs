@@ -5,21 +5,15 @@
     using System.Linq;
     using System.Reflection;
 
-    public class InjectRequest
+    public enum InjectScope
     {
-        public string Id { get; }
-        public InjectRequestType Type { get; }
+        Transient = 1,
+        Scoped = 2
+    }
 
-        internal string Path { get; set; } = "";
-        internal string Content { get; set; } = "";
-
-        protected InjectRequest(string id, InjectRequestType type)
-        {
-            Id = id;
-            Type = type;
-        }
-
-        protected static string LoadResource(Assembly assembly, string fileName)
+    public static class ResourceLoader
+    {
+        public static string LoadResource(Assembly assembly, string fileName)
         {
             var resourceName = assembly.GetManifestResourceNames()
                 .FirstOrDefault(n => n.EndsWith(fileName, StringComparison.Ordinal));
@@ -39,29 +33,37 @@
         }
     }
 
-    public class ScriptInjectRequest : InjectRequest
+    public abstract record InjectRequest(string Id, InjectRequestType Type, InjectScope Scope = InjectScope.Transient)
     {
-        private ScriptInjectRequest(string id, InjectRequestType type) : base(id, type)
+        internal string Path { get; set; } = "";
+        internal string Content { get; set; } = "";
+    }
+
+    public record ScriptInjectRequest : InjectRequest
+    {
+        private ScriptInjectRequest(string Id, InjectRequestType Type, InjectScope Scope = InjectScope.Transient):base(Id, Type, Scope)
         {
         }
 
-        public static ScriptInjectRequest FromUrl(string id, string path) =>
-            new(id, InjectRequestType.JsFile) { Path = path };
+        public static ScriptInjectRequest FromUrl(string id, string path, InjectScope scope = InjectScope.Transient) =>
+            new(id, InjectRequestType.JsFile, scope) { Path = path };
 
-        public static ScriptInjectRequest Inline(string id, string content) =>
-            new(id, InjectRequestType.JsInline) { Content = content };
+        public static ScriptInjectRequest
+            Inline(string id, string content, InjectScope scope = InjectScope.Transient) =>
+            new(id, InjectRequestType.JsInline, scope) { Content = content };
 
-        public static ScriptInjectRequest FromResource(string id, Assembly assembly, string fileName) =>
-            new(id, InjectRequestType.JsInline) { Content = LoadResource(assembly, fileName) };
+        public static ScriptInjectRequest FromResource(string id, Assembly assembly, string fileName,
+            InjectScope scope = InjectScope.Transient) =>
+            new(id, InjectRequestType.JsInline, scope) { Content = ResourceLoader.LoadResource(assembly, fileName) };
 
-        public static ScriptInjectRequest InlineEval(string id, string content) =>
-            new(id, InjectRequestType.JsEval) { Content = content };
+        public static ScriptInjectRequest InlineEval(string id, string content, InjectScope scope = InjectScope.Transient) =>
+            new(id, InjectRequestType.JsEval, scope) { Content = content };
 
-        public static ScriptInjectRequest FromResourceEval(string id, Assembly assembly, string fileName) =>
-            new(id, InjectRequestType.JsEval) { Content = LoadResource(assembly, fileName) };
+        public static ScriptInjectRequest FromResourceEval(string id, Assembly assembly, string fileName, InjectScope scope = InjectScope.Transient) =>
+            new(id, InjectRequestType.JsEval, scope) { Content = ResourceLoader.LoadResource(assembly, fileName) };
     }
 
-    public class CssInjectRequest : InjectRequest
+    public record CssInjectRequest : InjectRequest
     {
         private CssInjectRequest(string id, InjectRequestType type) : base(id, type)
         {
@@ -74,6 +76,6 @@
             new(id, InjectRequestType.CssInline) { Content = content };
 
         public static CssInjectRequest FromResource(string id, Assembly assembly, string fileName) =>
-            new(id, InjectRequestType.CssInline) { Content = LoadResource(assembly, fileName) };
+            new(id, InjectRequestType.CssInline) { Content = ResourceLoader.LoadResource(assembly, fileName) };
     }
 }

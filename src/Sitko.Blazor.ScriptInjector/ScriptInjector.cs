@@ -22,12 +22,14 @@ public interface IScriptInjector
         CancellationToken cancellationToken = default);
 }
 
+public record InjectTask(InjectScope Scope, TaskCompletionSource<bool> CompletionSource);
+
 public class ScriptInjector : IScriptInjector
 {
     private readonly DotNetObjectReference<ScriptInjector> instance;
     private readonly IJSRuntime jsRuntime;
     private readonly ILogger<ScriptInjector> logger;
-    private readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> requestTasks = new();
+    private readonly ConcurrentDictionary<string, InjectTask> requestTasks = new();
     private bool isInitialized;
 
     public ScriptInjector(IJSRuntime jsRuntime, NavigationManager navigationManager, ILogger<ScriptInjector> logger)
@@ -37,7 +39,13 @@ public class ScriptInjector : IScriptInjector
         instance = DotNetObjectReference.Create(this);
         navigationManager.LocationChanged += (_, _) =>
         {
-            requestTasks.Clear();
+            var toRemove = requestTasks.Where(task => task.Value.Scope == InjectScope.Transient)
+                .Select(pair => pair.Key).ToList();
+            foreach (var injectTaskId in toRemove)
+            {
+                logger.LogDebug("Remove task {Id}", injectTaskId);
+                requestTasks.TryRemove(injectTaskId, out _);
+            }
         };
     }
 
@@ -65,17 +73,18 @@ public class ScriptInjector : IScriptInjector
         CancellationToken cancellationToken)
     {
         var tasks = new List<Task<bool>>();
-        foreach (var scriptInjectRequest in requests)
+        foreach (var injectRequest in requests)
         {
-            logger.LogDebug("Load request {Id}", scriptInjectRequest.Id);
-            var newTcs = new TaskCompletionSource<bool>();
-            var tcs = requestTasks.GetOrAdd(scriptInjectRequest.Id, (_, tcs) => tcs, newTcs);
-            if (tcs == newTcs)
+            logger.LogDebug("Load request {Id}", injectRequest.Id);
+            var newTask = new InjectTask(injectRequest.Scope, new TaskCompletionSource<bool>());
+            var task = requestTasks.GetOrAdd(injectRequest.Id, newTask);
+            if (task == newTask)
             {
-                await InjectAsync(scriptInjectRequest, cancellationToken);
+                logger.LogDebug("Add task {Id}", injectRequest.Id);
+                await InjectAsync(injectRequest, cancellationToken);
             }
 
-            tasks.Add(tcs.Task);
+            tasks.Add(task.CompletionSource.Task);
         }
 
         await Task.WhenAll(tasks);
@@ -88,7 +97,7 @@ public class ScriptInjector : IScriptInjector
         }
         else
         {
-            logger.LogError("Not all scripts are loaded successfully");
+            logger.LogError("Not all resources are loaded successfully");
         }
     }
 
@@ -138,12 +147,12 @@ public class ScriptInjector : IScriptInjector
 
     private void RequestFinished(string name, bool isSuccess)
     {
-        if (requestTasks.TryGetValue(name, out var tcs))
+        if (requestTasks.TryGetValue(name, out var injectTask))
         {
             if (isSuccess) { logger.LogDebug("Request {Name} is loaded", name); }
             else { logger.LogError("Request {Name} is failed", name); }
 
-            tcs.TrySetResult(isSuccess);
+            injectTask.CompletionSource.TrySetResult(isSuccess);
         }
         else
         {
