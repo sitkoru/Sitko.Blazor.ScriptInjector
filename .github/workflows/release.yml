@@ -1,9 +1,9 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - '*.*.*'
+  release:
+    types:
+      - published
 
 jobs:
   build:
@@ -16,7 +16,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Prepare
         id: prep
-        shell: bash
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
           echo ::set-output name=version::${VERSION}
