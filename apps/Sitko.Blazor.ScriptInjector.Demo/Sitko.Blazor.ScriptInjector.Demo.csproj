@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
     <ProjectReference Include="..\Sitko.Blazor.ScriptInjector.Demo.Client\Sitko.Blazor.ScriptInjector.Demo.Client.csproj" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.2" />
   </ItemGroup>
 
   <ItemGroup>
