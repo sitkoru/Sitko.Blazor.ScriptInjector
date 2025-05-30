@@ -41,7 +41,8 @@
 
     public record ScriptInjectRequest : InjectRequest
     {
-        private ScriptInjectRequest(string Id, InjectRequestType Type, InjectScope Scope = InjectScope.Transient):base(Id, Type, Scope)
+        private ScriptInjectRequest(string Id, InjectRequestType Type, InjectScope Scope = InjectScope.Transient) :
+            base(Id, Type, Scope)
         {
         }
 
@@ -56,26 +57,30 @@
             InjectScope scope = InjectScope.Transient) =>
             new(id, InjectRequestType.JsInline, scope) { Content = ResourceLoader.LoadResource(assembly, fileName) };
 
-        public static ScriptInjectRequest InlineEval(string id, string content, InjectScope scope = InjectScope.Transient) =>
+        public static ScriptInjectRequest InlineEval(string id, string content,
+            InjectScope scope = InjectScope.Transient) =>
             new(id, InjectRequestType.JsEval, scope) { Content = content };
 
-        public static ScriptInjectRequest FromResourceEval(string id, Assembly assembly, string fileName, InjectScope scope = InjectScope.Transient) =>
+        public static ScriptInjectRequest FromResourceEval(string id, Assembly assembly, string fileName,
+            InjectScope scope = InjectScope.Transient) =>
             new(id, InjectRequestType.JsEval, scope) { Content = ResourceLoader.LoadResource(assembly, fileName) };
     }
 
     public record CssInjectRequest : InjectRequest
     {
-        private CssInjectRequest(string id, InjectRequestType type) : base(id, type)
+        private CssInjectRequest(string id, InjectRequestType type, InjectScope scope = InjectScope.Transient) : base(
+            id, type, scope)
         {
         }
 
-        public static CssInjectRequest FromUrl(string id, string path) =>
-            new(id, InjectRequestType.CssFile) { Path = path };
+        public static CssInjectRequest FromUrl(string id, string path, InjectScope scope = InjectScope.Transient) =>
+            new(id, InjectRequestType.CssFile, scope) { Path = path };
 
-        public static CssInjectRequest Inline(string id, string content) =>
-            new(id, InjectRequestType.CssInline) { Content = content };
+        public static CssInjectRequest Inline(string id, string content, InjectScope scope = InjectScope.Transient) =>
+            new(id, InjectRequestType.CssInline, scope) { Content = content };
 
-        public static CssInjectRequest FromResource(string id, Assembly assembly, string fileName) =>
-            new(id, InjectRequestType.CssInline) { Content = ResourceLoader.LoadResource(assembly, fileName) };
+        public static CssInjectRequest FromResource(string id, Assembly assembly, string fileName,
+            InjectScope scope = InjectScope.Transient) =>
+            new(id, InjectRequestType.CssInline, scope) { Content = ResourceLoader.LoadResource(assembly, fileName) };
     }
 }
